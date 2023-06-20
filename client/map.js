@@ -49,9 +49,10 @@ class Map {
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
         indPixels = (y * this.width + x) * 4;
-        this.texture.pixels[indPixels + 0] = red(this.data[indData]);
-        this.texture.pixels[indPixels + 1] = green(this.data[indData]);
-        this.texture.pixels[indPixels + 2] = blue(this.data[indData]);
+        let clr = this.data[indData].terrainType.clr;
+        this.texture.pixels[indPixels + 0] = red(clr);
+        this.texture.pixels[indPixels + 1] = green(clr);
+        this.texture.pixels[indPixels + 2] = blue(clr);
         this.texture.pixels[indPixels + 3] = 255;
         indData++;
       }
@@ -73,31 +74,46 @@ class Map {
   static createRegions() {
     let regions = [];
 
-    const deepWater = new TerrainType("deep water", 0.1, color(50, 50, 150));
+    const deepWater = new TerrainType(
+      "deep water",
+      0.0,
+      0.1,
+      color(50, 50, 150)
+    );
     regions.push(deepWater);
 
-    const mediumWater = new TerrainType("medium water", 0.3, color(62, 62, 194));
+    const mediumWater = new TerrainType(
+      "medium water",
+      0.1,
+      0.3,
+      color(62, 62, 194)
+    );
     regions.push(mediumWater);
 
-    const shallowWater = new TerrainType("shallow water", 0.5, color(71, 71, 255));
+    const shallowWater = new TerrainType(
+      "shallow water",
+      0.3,
+      0.5,
+      color(71, 71, 255)
+    );
     regions.push(shallowWater);
 
-    const beach = new TerrainType("beach", 0.55, color(217, 224, 139));
+    const beach = new TerrainType("beach", 0.5, 0.55, color(217, 224, 139));
     regions.push(beach);
 
-    const grass = new TerrainType("grass", 0.67, color(67, 204, 67));
+    const grass = new TerrainType("grass", 0.55, 0.67, color(67, 204, 67));
     regions.push(grass);
 
-    const forest = new TerrainType("forest", 0.75, color(17, 99, 33));
+    const forest = new TerrainType("forest", 0.67, 0.75, color(17, 99, 33));
     regions.push(forest);
 
-    const dirt = new TerrainType("dirt", 0.82, color(50, 54, 45));
+    const dirt = new TerrainType("dirt", 0.75, 0.82, color(50, 54, 45));
     regions.push(dirt);
 
-    const rock = new TerrainType("rock", 0.95, color(48, 41, 41));
+    const rock = new TerrainType("rock", 0.82, 0.95, color(48, 41, 41));
     regions.push(rock);
 
-    const snow = new TerrainType("snow", 1, color(255));
+    const snow = new TerrainType("snow", 0.95, 1, color(255));
     regions.push(snow);
 
     return regions;
