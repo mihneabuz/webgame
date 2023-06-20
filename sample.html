@@ -10,41 +10,74 @@
         width: 500px;
         height: 500px;
         background-color: red;
+        position: relelative;
+      }
+
+      .player {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: blue;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
       }
     </style>
   </head>
   <body>
     <div class="game">
+      <div class="player"></div>
+      <div class="player"></div>
+      <div class="player"></div>
+      <div class="player"></div>
     </div>
-    <script>
-      console.log('start');
-      const socket = new WebSocket("ws://localhost:3000?name=user");
-
-      socket.addEventListener('message', (event) => {
-        console.log(event.data);
-      });
-
-      const pos = [0, 0];
-
-      document.addEventListener('keypress', (event) => {
-        console.log(event);
-
-        switch (event.key) {
-          case "w":
-            pos[0] -= 1;
-          case "a":
-            pos[1] -= 1;
-          case "s":
-            pos[0] += 1;
-          case "d":
-            pos[1] += 1;
-          break;
-        }
-      });
-
-      setInterval(() => {
-        socket.send('move ' + JSON.stringify(pos));
-      }, 500);
-    </script>
   </body>
+
+  <script>
+    console.log('start');
+    const name = 'user';
+    const socket = new WebSocket(`ws://localhost:3000?name=${name}`);
+    const game = document.querySelector('div');
+
+    socket.addEventListener('message', (event) => {
+      const msg = event.data.split(" ");
+
+      if (msg[0].startsWith('players')) {
+        const players = JSON.parse(msg[1]);
+        for (let i = 0; i < players.length; i ++) {
+          const el = game.children[i];
+          const pos = players[i][2];
+
+          el.textContent = players[i][0];
+          el.setAttribute('style', `top: ${pos[0]}px; left: ${pos[1]}px; display: inline`);
+        }
+      }
+    });
+
+    const pos = [0, 0];
+
+    document.addEventListener('keypress', (event) => {
+      switch (event.key) {
+        case "w":
+          pos[0] -= 3;
+          break;
+        case "a":
+          pos[1] -= 3;
+          break;
+        case "s":
+          pos[0] += 3;
+          break;
+        case "d":
+          pos[1] += 3;
+          break;
+        break;
+      }
+    });
+
+    setInterval(() => {
+      socket.send('move ' + JSON.stringify(pos));
+    }, 10);
+  </script>
 </html>

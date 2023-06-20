@@ -18,12 +18,12 @@ wss.on('connection', (ws, req) => {
 
   ws.on('message', (bytes) => {
     const msg = bytes.toString().toLowerCase().split(" ");
-    console.log(msg);
 
     if (msg[0].startsWith("move")) {
-      console.log("moving!");
       const pos = JSON.parse(msg[1]);
       players.get(name).pos = pos;
+    } else if (msg[0].startsWith("shoot")) {
+
     }
   });
 
@@ -41,9 +41,8 @@ setInterval(() => {
   });
 
   const toSend = "players " + JSON.stringify(sendPlayers);
-  console.log(toSend);
 
   players.forEach(val => {
     val.ws.send(toSend);
   })
-}, 500);
+}, 10);
