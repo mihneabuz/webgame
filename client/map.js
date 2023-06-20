@@ -49,11 +49,12 @@ class Map {
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
         indPixels = (y * this.width + x) * 4;
-        let clr = this.data[indData].terrainType.clr;
+        const tile = this.data[indData];
+        const {minHeight, maxHeight, clr} = tile.terrainType;
         this.texture.pixels[indPixels + 0] = red(clr);
         this.texture.pixels[indPixels + 1] = green(clr);
         this.texture.pixels[indPixels + 2] = blue(clr);
-        this.texture.pixels[indPixels + 3] = 255;
+        this.texture.pixels[indPixels + 3] = map(tile.height, minHeight, maxHeight, 255, 0);
         indData++;
       }
     }
