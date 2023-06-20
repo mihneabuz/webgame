@@ -36,6 +36,7 @@ function update() {
 }
 
 function render() {
+  background(0);
   image(world.texture, world.x, world.y);
   player.display();
 }
