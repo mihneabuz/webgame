@@ -1,10 +1,13 @@
 const MAP_WIDTH = 800;
 const MAP_HEIGHT = 800;
+const MAP_SCALE = 0.00125;
 
 const PLAYER_SIZE = 16;
 const PLAYER_COLOR = "#757575";
 
 const NOMINAL_SPEED = 1;
+const WATER_DRAG = 0.4;
+const SKIN_SLOPE = Math.sqrt(3);
 
 let world, player;
 
@@ -12,7 +15,7 @@ function setup() {
   createCanvas(MAP_WIDTH, MAP_HEIGHT);
   pixelDensity(1);
 
-  world = new Map(0, 0, MAP_WIDTH, MAP_HEIGHT, 0.00125, 4, 0.5, 2);
+  world = new Map(0, 0, MAP_WIDTH, MAP_HEIGHT, MAP_SCALE, 4, 0.5, 2);
   world.init();
   world.createTexture();
 
@@ -57,7 +60,29 @@ class Player {
       return;
     }
 
-    this.vel.set(p5.Vector.mult(dir, NOMINAL_SPEED));
+    const px = Math.floor(this.pos.x),
+      py = Math.floor(this.pos.y);
+    const npx = constrain(px + dir.x, 0, MAP_WIDTH - 1),
+      npy = constrain(py + dir.y, 0, MAP_HEIGHT - 1);
+
+    const tile = world.data[py * MAP_WIDTH + px];
+    let speed = NOMINAL_SPEED;
+    switch (tile.terrainType.name) {
+      case "deep water":
+      case "medium water":
+      case "shallow water": {
+        speed *= WATER_DRAG;
+        break;
+      }
+      default: {
+        const nextTile = world.data[npy * MAP_WIDTH + npx];
+        const slope = (nextTile.height - tile.height) / MAP_SCALE;
+        speed *= Math.exp(-slope / SKIN_SLOPE);
+        break;
+      }
+    }
+
+    this.vel.set(p5.Vector.mult(dir, speed));
   }
 
   physicsUpdate() {

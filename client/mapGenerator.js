@@ -39,8 +39,8 @@ class MapGenerator {
         currentHeight = noiseMap[y][x];
 
         for (let i = 0; i < regions.length; i++) {
-          if (currentHeight <= regions[i].height) {
-            terrainMap.push(regions[i].clr);
+          if (currentHeight <= regions[i].maxHeight) {
+            terrainMap.push(new TerrainTile(regions[i], currentHeight));
             break;
           }
         }
@@ -51,9 +51,17 @@ class MapGenerator {
 }
 
 class TerrainType {
-  constructor(name, height, color) {
+  constructor(name, minHeight, maxHeight, color) {
     this.name = name;
-    this.height = height;
+    this.minHeight = minHeight;
+    this.maxHeight = maxHeight;
     this.clr = color;
+  }
+}
+
+class TerrainTile {
+  constructor(terrainType, height) {
+    this.terrainType = terrainType;
+    this.height = height;
   }
 }
