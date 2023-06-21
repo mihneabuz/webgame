@@ -11,7 +11,8 @@ class Map {
     noiseScale,
     octaves,
     persistance,
-    lacunarity
+    lacunarity,
+    serverSeed
   ) {
     this.x = x;
     this.y = y;
@@ -21,12 +22,13 @@ class Map {
     this.octaves = octaves;
     this.persistance = persistance;
     this.lacunarity = lacunarity;
+    this.serverSeed = serverSeed;
 
     this.texture = createImage(this.width, this.height);
   }
 
   init() {
-    this.octaveOffsets = Map.generateOctaveOffsets(this.octaves);
+    this.octaveOffsets = Map.generateOctaveOffsets(this.octaves, this.serverSeed);
     this.regions = Map.createRegions();
 
     this.data = MapGenerator.generateMap(
@@ -61,7 +63,10 @@ class Map {
     this.texture.updatePixels();
   }
 
-  static generateOctaveOffsets(octaves) {
+  static generateOctaveOffsets(octaves, serverSeed) {
+    randomSeed(serverSeed);
+    noiseSeed(serverSeed);
+
     let offsets = [];
     let offsetX, offsetY;
     for (let i = 0; i < octaves; i++) {

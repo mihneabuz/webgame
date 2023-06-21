@@ -1,29 +1,69 @@
-const MAP_WIDTH = 800;
-const MAP_HEIGHT = 800;
+const WEBSOCK_HOST = 'localhost:3000'
+
+const MAP_WIDTH = 900;
+const MAP_HEIGHT = 900;
 const MAP_SCALE = 0.00125;
 
 const PLAYER_SIZE = 16;
 const PLAYER_COLOR = "#757575";
 
+const OTHER_SIZE = 20;
+const OTHER_COLOR = "#b86464"
+
 const NOMINAL_SPEED = 1;
 const WATER_DRAG = 0.4;
 const SKIN_SLOPE = Math.sqrt(3);
 
-let world, player;
+let world, player, others, socket;
 
 function setup() {
   createCanvas(MAP_WIDTH, MAP_HEIGHT);
   pixelDensity(1);
-
-  world = new Map(0, 0, MAP_WIDTH, MAP_HEIGHT, MAP_SCALE, 4, 0.5, 2);
-  world.init();
-  world.createTexture();
 
   player = new Player(
     createVector(MAP_WIDTH / 2, MAP_HEIGHT / 2),
     PLAYER_SIZE,
     PLAYER_COLOR
   );
+
+  others = [];
+
+  let name = '' + Math.floor(Math.random() * 10000);
+
+  socket = new WebSocket(`ws://${WEBSOCK_HOST}?name=${name}`);
+  socket.addEventListener('message', (event) => {
+    const msg = event.data.split(" ");
+
+    if (msg[0].startsWith('seed')) {
+      let seed = parseInt(msg[1]);
+
+      world = new Map(0, 0, MAP_WIDTH, MAP_HEIGHT, MAP_SCALE, 4, 0.5, 2, seed);
+      world.init();
+      world.createTexture();
+    }
+
+    if (msg[0].startsWith('players')) {
+      const players = JSON.parse(msg[1]);
+
+      while (players.length - 1 > others.length) {
+        others.push(new Player(createVector(0, 0), OTHER_SIZE, OTHER_COLOR));
+      }
+
+      while (players.length - 1 < others.length) {
+        others.pop();
+      }
+
+      players.filter(p => p[0] !== name).forEach((player, i) => {
+        const pos = player[2];
+        others[i].pos = createVector(pos[0], pos[1]);
+      });
+    }
+  });
+
+  setInterval(() => {
+    let pos = [player.pos.x, player.pos.y];
+    socket.send('move ' + JSON.stringify(pos));
+  }, 10);
 }
 
 function draw() {
@@ -37,8 +77,13 @@ function update() {
 
 function render() {
   background(0);
-  image(world.texture, world.x, world.y);
+  if (world) {
+    image(world.texture, world.x, world.y);
+  }
   player.display();
+  for (const other of others) {
+    other.display();
+  }
 }
 
 class Player {

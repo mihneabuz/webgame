@@ -46,3 +46,7 @@ setInterval(() => {
     val.ws.send(toSend);
   })
 }, 10);
+
+setInterval(() => {
+  console.log(players.size);
+}, 3000);
