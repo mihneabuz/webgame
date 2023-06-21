@@ -1,5 +1,3 @@
-const WEBSOCK_HOST = 'localhost:3000'
-
 const MAP_WIDTH = 900;
 const MAP_HEIGHT = 900;
 const MAP_SCALE = 0.00125;
@@ -30,7 +28,7 @@ function setup() {
 
   let name = '' + Math.floor(Math.random() * 10000);
 
-  socket = new WebSocket(`ws://${WEBSOCK_HOST}?name=${name}`);
+  socket = new WebSocket(`wss://${location.host}?name=${name}`);
   socket.addEventListener('message', (event) => {
     const msg = event.data.split(" ");
 
